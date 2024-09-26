@@ -1,2 +1,2 @@
 # CPP-Utility
-Utility functions / stuff , I use with my windows c++ applications/dlls
+Utility functions / classes, I use with my windows c++ applications/dlls
