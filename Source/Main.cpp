@@ -6,12 +6,11 @@ void FiberLoop()
 {
     while (true)
     {
-        util::do_once([] {
-            console::sub_header("Gradient message sent once"_gradient);
-        });
-
         static int delay = 500;
         util::do_timed(delay, [] {
+            do_once([]{
+                console::sub_header("Gradient message sent once"_gradient);
+            });
             console::sub_header("This is sent every 0.5 seconds !");
         });
 

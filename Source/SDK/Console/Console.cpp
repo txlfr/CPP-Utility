@@ -42,16 +42,16 @@ namespace app
         {
             void print_colored_text(Color col, const std::string& text) 
             {
-                std::cout << "\033[38;2;" << col.m_r << ";" << col.m_g << ";" << col.m_b << "m" << text << "\033[0m" << std::endl;
+                std::cout << std::format("\033[38;2;{};{};{}m{}\033[0m\n", col.m_r, col.m_g, col.m_b, text);
             }
 
             std::string get_colored_string(Color col, char text)
             {
-                return "\033[38;2;" + std::to_string(col.m_r) + ";" + std::to_string(col.m_g) + ";" + std::to_string(col.m_b) + "m" + text + "\033[0m";
+                return std::format("\033[38;2;{};{};{}m{}\033[0m", col.m_r, col.m_g, col.m_b, text); 
             }
 
             std::string get_colored_string(int id, std::string text) {
-                return "\033[38;5;" + std::to_string(id) + "m" + text + "\033[0m";
+                return std::format("\033[38;5;{}m{}\033[0m", id, text);
             }
 
             std::string gradient_text(const std::string& text)

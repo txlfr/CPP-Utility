@@ -110,53 +110,27 @@ namespace app::util
         }
     }
 
-    std::string hackify(const std::string& text, Convert mode) 
+    std::string hackify(const std::string& text, Convert mode)
     {
-        static char hack_map[5] = { 0 };
-        static bool initialized = false;
-
-        if (!initialized)
-        {
-            for (int i = 0; i < 256; ++i)
+        static const std::array<char, 256> hack_map = []() {
+            std::array<char, 256> map{};
+            for (int i = 0; i < 256; ++i) // hate visual studio warnings so lol 
             {
-                hack_map[i] = i;
+                map[i] = static_cast<char>(i);
             }
-
-            hack_map['I'] = hack_map['i'] = '1';
-            hack_map['E'] = hack_map['e'] = '3';
-            hack_map['A'] = hack_map['a'] = '4';
-            hack_map['O'] = hack_map['o'] = '0';
-
-            initialized = true;
-        }
+            map['I'] = map['i'] = '1';
+            map['E'] = map['e'] = '3';
+            map['A'] = map['a'] = '4';
+            map['O'] = map['o'] = '0';
+            return map;
+            }();
 
         std::string result = text;
-
         for (char& c : result)
         {
-            c = hack_map[static_cast<unsigned char>(c)];
+            c = hack_map[static_cast<unsigned char>(c)]; // safe index to the map
         }
 
         return convert(result, mode);
-    }
-
-    std::map<void*, std::pair<DWORD, ULONGLONG>> timeed_functions_map;
-
-    void do_timed(DWORD milliseconds, std::function<void()> callback)
-    {
-        void* ptr = callback.target<void(*)()>();
-        ULONGLONG current_time = GetTickCount64();
-
-        auto& timer_data = timeed_functions_map[ptr];
-
-        if (timer_data.first == 0) {
-            timer_data = { milliseconds, current_time };
-        }
-
-        if (current_time - timer_data.second >= timer_data.first) 
-        {
-            callback();
-            timer_data.second = current_time;
-        }
     }
 }
