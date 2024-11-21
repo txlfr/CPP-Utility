@@ -1,5 +1,6 @@
 #pragma once
 #include "Global.h"
+#include "SDK/Fibers/Fiber.h"
 
 namespace app 
 {
@@ -23,26 +24,16 @@ namespace app::util
 	std::string convert(const std::string& text, Convert mode);
 	std::string hackify(const std::string& text, Convert mode);
 
-	template <typename Func>
-	void do_timed(DWORD milliseconds, Func&& callback)
-	{
-		static_assert(std::is_invocable_v<Func>, "callback must be callable."); // Using std::function for something that can be done in compile time is unnecessary overhead again thanks bomuld :3
+	template <typename T>
+	concept Callable = std::is_invocable_v<T>;
 
-		void* ptr = reinterpret_cast<void*>(+std::forward<Func>(callback));
-		using Clock = std::chrono::steady_clock;
+	template <Callable Action>
+	void do_timed(DWORD delay, Action&& action) {
+		auto const start = std::chrono::high_resolution_clock::now();
+		action();
+		auto const end = std::chrono::high_resolution_clock::now();
 
-		static std::map<void*, std::pair<DWORD, Clock::time_point>> timed_functions_map;
-
-		auto& timer_data = timed_functions_map[ptr];
-		auto current_time = Clock::now();
-
-		if (timer_data.second == Clock::time_point{}) {
-			timer_data = { milliseconds, current_time };
-		}
-		if (std::chrono::duration_cast<std::chrono::milliseconds>(current_time - timer_data.second).count() >= timer_data.first) {
-			callback();
-			timer_data.second = current_time;
-		}
+		Fiber::get()->yield(std::chrono::milliseconds(delay) - (end - start));
 	}
 
 	uint32_t joaat(const std::string_view& text);
